@@ -85,7 +85,12 @@ AdvancedRAG/
 
 ### Local Development
 
-1. **Run the Streamlit app**:
+1. **Fetch documents** from LangChain documentation:
+    ```bash
+    python3 src/scripts/retrieva_data.py
+    ```
+    
+2. **Run the Streamlit app**:
    ```bash
    streamlit run app.py
    ```
