@@ -3,6 +3,7 @@ import shutil
 import os
 import time
 import gzip
+import argparse
 
 from utils.logger import get_logger
 
@@ -84,6 +85,14 @@ class FetchFilesFromGitHub:
         self.logger.info("Starting file download process.")
         self._fetch_and_download(current_url=self.api_url)
         self.logger.info("File download process completed")
+
+
+def main():
+    document_fetcher = FetchFilesFromGitHub()
+    document_fetcher.get_documents_from_github()
+
+if __name__ == "__main__":
+    main()
 
 
             
