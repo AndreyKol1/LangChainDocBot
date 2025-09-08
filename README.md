@@ -4,7 +4,8 @@ A Retrieval-Augmented Generation (RAG) chatbot built with LangChain, Cohere, and
 
 ## Features
 
-- **RAG Pipeline**: Retrieves and reranks relevant documents using Cohere's reranking API.
+- **RAG Pipeline**: Retrieves and reranks relevant documents using Cohere's reranking API. Utilizes **Query Transformation** and
+**Contextual Compression** for better retrieval process.
 - **LangChain Integration**: Leverages LangChain for LLM interactions and document processing.
 - **Langgraph Intergration**: Leverages Langgraph to build a flow of the application. 
 - **Streamlit Frontend**: User-friendly chat interface with message history.
@@ -52,7 +53,7 @@ AdvancedRAG/
 
 ## Prerequisites
 
-- Python 3.12+
+- Python 3.13+
 - Docker (for containerization)
 - API keys for Cohere, LangFuse and GitHub
 
@@ -66,7 +67,7 @@ AdvancedRAG/
 
 2. **Set up environment**:
    ```bash
-   conda create -n advancedrag python=3.12
+   conda create -n advancedrag python=3.13
    conda activate advancedrag
    pip install -r requirements.txt
    ```
