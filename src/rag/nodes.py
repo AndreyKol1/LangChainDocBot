@@ -1,5 +1,5 @@
 from utils.logger import get_logger
-from rag.prompt import create_chat_prompt
+from rag.prompt import create_chat_prompt, create_query_transformation_prompt
 from rag.config import compression_retriever, co, llm, langfuse_handler  
 from rag.state import State  
 
@@ -7,12 +7,14 @@ logger = get_logger("main")
 
 def retrieve(state: State):
     try:
-        retrieved_docs = compression_retriever.invoke(input=state['messages'][-1].content)
+        prompt_refined = create_query_transformation_prompt(question=state['messages'][-1].content)
+        improved_prompt = llm.invoke(prompt_refined, config={'callbacks': [langfuse_handler]})
+        retrieved_docs = compression_retriever.invoke(input=improved_prompt.content)
         logger.info("Successfully retrieved documents for the given question")
         docs = [doc.page_content for doc in retrieved_docs]
         response = co.rerank(
             model="rerank-v3.5",
-            query=state['messages'][-1].content,
+            query=improved_prompt.content,
             documents=docs,
             top_n=3
         )
