@@ -53,7 +53,7 @@ AdvancedRAG/
 
 ## Prerequisites
 
-- Python 3.13+
+- Python 3.12+
 - Docker (for containerization)
 - API keys for Cohere, LangFuse and GitHub
 
@@ -67,7 +67,7 @@ AdvancedRAG/
 
 2. **Set up environment**:
    ```bash
-   conda create -n advancedrag python=3.13
+   conda create -n advancedrag python=3.12
    conda activate advancedrag
    pip install -r requirements.txt
    ```
