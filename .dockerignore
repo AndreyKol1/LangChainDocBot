@@ -4,7 +4,6 @@ __pycache__
 *.pyc
 .pytest_cache
 logs.txt
-data/
 .DS_Store
 .vscode
 node_modules
