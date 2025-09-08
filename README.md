@@ -1,4 +1,4 @@
-# AdvancedRAG: LangChain Documentation Chatbot
+# LangChain Documentation Chatbot
 
 A Retrieval-Augmented Generation (RAG) chatbot built with LangChain, Cohere, and Streamlit for querying LangChain documentation. This project demonstrates LLMOps practices with containerization, monitoring, and scalable deployment.
 
