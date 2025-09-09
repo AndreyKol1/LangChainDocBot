@@ -12,7 +12,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-ENV PYTHONPATH=/app
+ENV PYTHONPATH=/app/src
 
 
 EXPOSE 8501
