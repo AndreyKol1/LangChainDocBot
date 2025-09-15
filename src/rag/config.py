@@ -5,6 +5,7 @@ from langchain.retrievers.document_compressors import LLMChainExtractor
 from langchain.retrievers import ContextualCompressionRetriever
 from dotenv import load_dotenv
 from langfuse.langchain import CallbackHandler
+from db.chroma_db import load_vector_db
 import cohere
 import os
 
@@ -12,8 +13,7 @@ load_dotenv()
 cohere_api = os.environ["COHERE_API"]
 langfuse_handler = CallbackHandler()
 llm = initialize_model()
-data = DataOrchestrator()
-retriever = data.get_db()
+retriever = load_vector_db().as_retriever(search_type="similarity", search_kwargs={"k": 20})
 logger = get_logger("main")
 compressor = LLMChainExtractor.from_llm(llm)
 compression_retriever = ContextualCompressionRetriever(base_compressor=compressor, base_retriever=retriever)

@@ -1,5 +1,14 @@
 import streamlit as st
 from streamlit_chat import message  
+from utils.gcp import download_directory_from_gcs
+import os
+
+BUCKET_NAME = os.getenv("BUCKET_NAME", "chromavecdb17")
+GCS_PERSIST_PATH = os.getenv("GCS_PERSIST_PATH", "chroma/")
+LOCAL_PERSIST_PATH = os.getenv("LOCAL_PERSIST_PATH", "./vectorstore")
+
+download_directory_from_gcs(GCS_PERSIST_PATH, LOCAL_PERSIST_PATH, BUCKET_NAME)
+
 from src.main import ask_question
 
 st.markdown("""
@@ -30,6 +39,7 @@ for i, msg in enumerate(st.session_state.messages):
 if prompt := st.chat_input("What you would like to know?"):
     st.session_state.messages.append({"role": "user", "content": prompt})
     message(prompt, is_user=True)
+    print(prompt)
     
 
     with st.spinner("Thinking..."):

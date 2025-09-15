@@ -14,9 +14,9 @@ from db.chroma_db import initialize_vector_db, load_vector_db
 from utils.logger import get_logger
 
 class DataOrchestrator:
-    def __init__(self, folder_path: str = 'data/raw/'):
+    def __init__(self, folder_path: str = 'data/raw/', persists_dir: str = None):
         self.folder_path = folder_path
-        self.persists_dir = 'data/vectorstore'
+        self.persists_dir = persists_dir or os.getenv("LOCAL_PERSIST_PATH", './vectorstore')
         self.splitter = RecursiveCharacterTextSplitter(chunk_size=1000, 
                                                        chunk_overlap=200, 
                                                        separators=["\n## ", "\n### ", "\n```", "\n\n", "\n", " ", ""])
@@ -35,10 +35,14 @@ class DataOrchestrator:
             return []
 
     def _load_all_docs_parallel(self) -> Generator[Document, None, None]:
+        if not os.path.exists(self.folder_path):
+            self.logger.warning(f"Folder {self.folder_path} does not exist. Skipping document loading.")
+            return
         file_paths = [f.path for f in os.scandir(self.folder_path) if f.is_file()]
         self.logger.info(f"Found files: {file_paths}")
         if not file_paths:
             self.logger.warning(f"No files found in {self.folder_path} for preprocessing.")
+            return
         self.logger.info(f"Starting parallel processing for {len(file_paths)} files...")
         with ProcessPoolExecutor() as executor:
             results = executor.map(self._load_and_split_file, file_paths)
@@ -58,7 +62,7 @@ class DataOrchestrator:
             self.logger.info(f"No database found at '{self.persists_dir}'. Initializing new one.")
             docs = []
             for i, doc in enumerate(self._load_all_docs_parallel(), start=1):
-                if i % 400 == 0:
+                if i % 700 == 0:
                     if self.vector_db is None:
                         self.vector_db = initialize_vector_db(docs)
                     else:
@@ -74,3 +78,11 @@ class DataOrchestrator:
             self.logger.error("Vector DB was not initialized. No documents were processed.")
             raise RuntimeError("Vector DB initialization failed: No documents processed.")
         return self.vector_db.as_retriever(search_type="similarity", search_kwargs={"k": 20})
+    
+
+def main():
+    ingest = DataOrchestrator()
+    ingest.get_db()
+
+if __name__ == "__main__":
+    main()
