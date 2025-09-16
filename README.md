@@ -16,39 +16,39 @@ A Retrieval-Augmented Generation (RAG) chatbot built with LangChain, Cohere, and
 
 ```
 AdvancedRAG/
-├── .env                    # Environment variables
-├── .git/                   # Git repository
-├── .gitignore              # Git ignore file
-├── Dockerfile              # Docker configuration
-├── README.md               # This file
-├── app.py                  # Streamlit chatbot interface
-├── data/
-│   ├── raw/                # Raw LangChain documentation (.mdx files)
-│   └── vectorstore/        # Vectorstore data
-├── logs.txt                # Application logs
-├── requirements.txt        # Python dependencies
-└── src/
-    ├── core/
-    │   ├── tracing.py      # Tracing utilities
-    │   └── utils.py        # Core utilities
-    ├── db/
-    │   └── chroma_db.py    # Chroma database interactions
-    ├── main.py             # Main application logic and ask_question function
-    ├── rag/
-    │   ├── __init__.py
-    │   ├── config.py       # RAG configuration
-    │   ├── generator.py    # Response generation
-    │   ├── graph.py        # LangGraph workflow for RAG
-    │   ├── nodes.py        # Graph nodes
-    │   ├── pipeline.py     # Pipeline orchestration
-    │   ├── prompt.py       # Chat prompts
-    │   └── state.py        # State management
-    ├── scripts/
-    │   ├── ingest_data.py  # Data ingestion script
-    │   └── retrieve_data.py # Data retrieval utilities
-    └── utils/
-        ├── __init__.py
-        └── logger.py       # Logging utilities
+├── .dockerignore          # Docker ignore file
+├── .env                   # Environment variables
+├── .git/                  # Git repository
+├── .gitignore             # Git ignore file
+├── Dockerfile             # Docker configuration
+├── README.md              # This file
+├── app.py                 # Streamlit chatbot interface
+├── model/                 # Cached all-MiniLM-L6-v2 embedding model files
+├── requirements.txt       # Python dependencies
+├── src/
+│   ├── core/
+│   │   ├── tracing.py     # Tracing utilities
+│   │   └── utils.py       # Core utilities
+│   ├── db/
+│   │   └── chroma_db.py   # Chroma database interactions
+│   ├── main.py            # Main application logic and ask_question function
+│   ├── rag/
+│   │   ├── __init__.py
+│   │   ├── config.py      # RAG configuration
+│   │   ├── generator.py   # Response generation
+│   │   ├── graph.py       # LangGraph workflow for RAG
+│   │   ├── nodes.py       # Graph nodes
+│   │   ├── pipeline.py    # Pipeline orchestration
+│   │   ├── prompt.py      # Chat prompts
+│   │   └── state.py       # State management
+│   ├── scripts/
+│   │   ├── datapipeline.py # Data pipeline script
+│   │   ├── ingest_data.py # Data ingestion utilities
+│   │   └── retrieve_data.py # Data retrieval utilities
+│   └── utils/
+│       ├── __init__.py
+│       ├── gcp.py         # GCP utilities
+│       └── logger.py      # Logging utilities
 ```
 
 ## Prerequisites
@@ -85,9 +85,9 @@ AdvancedRAG/
 
 ### Local Development
 
-1. **Fetch documents** from LangChain documentation:
+1. **Fetrch, process and ingest data**:
     ```bash
-    python3 src/scripts/retrieva_data.py
+    python3 src/scripts/datapipeline.py
     ```
     
 2. **Run the Streamlit app**:
@@ -107,3 +107,34 @@ AdvancedRAG/
    ```bash
    docker run -p 8501:8501 advancedrag
    ```
+
+## Deployment
+
+### Google Cloud Platform (GCP)
+
+1. **Build and push to Google Container Registry**:
+   ```bash
+   gcloud builds submit --tag gcr.io/YOUR_PROJECT_ID/advancedrag
+   ```
+
+2. **Deploy to Cloud Run**:
+   ```bash
+   gcloud run deploy langchainbot \
+     --image gcr.io/YOUR_PROJECT_ID/advancedrag \
+     --platform managed \
+     --region europe-west1 \
+     --allow-unauthenticated \
+     --memory 2Gi \
+     --set-env-vars COHERE_API=YOUR_COHERE_KEY,LANGFUSE_PUBLIC_KEY=YOUR_PUBLIC_KEY,LANGFUSE_SECRET_KEY=YOUR_SECRET_KEY,GROQ_API_KEY=YOUR_GROQ_KEY,BUCKET_NAME=YOUR_BUCKET,GCS_PERSIST_PATH=chroma/,LOCAL_PERSIST_PATH=./vectorstore
+   ```
+
+### Environment Variables
+
+Required environment variables for deployment:
+- `COHERE_API`: Cohere API key
+- `LANGFUSE_PUBLIC_KEY`: LangFuse public key
+- `LANGFUSE_SECRET_KEY`: LangFuse secret key
+- `GROQ_API_KEY`: Groq API key
+- `BUCKET_NAME`: GCP bucket name for vectorstore
+- `GCS_PERSIST_PATH`: Path in GCS bucket (default: chroma/)
+- `LOCAL_PERSIST_PATH`: Local path for vectorstore (default: /tmp/vectorstore)
