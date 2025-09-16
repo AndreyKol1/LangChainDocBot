@@ -51,38 +51,23 @@ class DataOrchestrator:
             yield from r
             
     
-    def get_db(self) -> Chroma:
-        if self.vector_db:
-            self.logger.info("Loading cached vector database instance")
-            return self.vector_db.as_retriever(search_type="similarity", search_kwargs={"k": 20})
-        if os.path.exists(self.persists_dir) and os.listdir(self.persists_dir):
-            self.logger.info(f"Found existing database at '{self.persists_dir}'.")
-            self.vector_db = load_vector_db(self.persists_dir)
-        else:
-            self.logger.info(f"No database found at '{self.persists_dir}'. Initializing new one.")
-            docs = []
-            for i, doc in enumerate(self._load_all_docs_parallel(), start=1):
-                if i % 700 == 0:
-                    if self.vector_db is None:
-                        self.vector_db = initialize_vector_db(docs)
-                    else:
-                        self.vector_db.add_documents(docs)
-                    docs.clear()
-                docs.append(doc)
-            if docs:
+    def populate_db(self) -> Chroma:
+        self.logger.info(f"No database found at '{self.persists_dir}'. Initializing new one.")
+        docs = []
+        for i, doc in enumerate(self._load_all_docs_parallel(), start=1):
+            if i % 700 == 0:
                 if self.vector_db is None:
                     self.vector_db = initialize_vector_db(docs)
                 else:
                     self.vector_db.add_documents(docs)
+                docs.clear()
+            docs.append(doc)
+        if docs:
+            if self.vector_db is None:
+                self.vector_db = initialize_vector_db(docs)
+            else:
+                self.vector_db.add_documents(docs)
+
         if self.vector_db is None:
             self.logger.error("Vector DB was not initialized. No documents were processed.")
             raise RuntimeError("Vector DB initialization failed: No documents processed.")
-        return self.vector_db.as_retriever(search_type="similarity", search_kwargs={"k": 20})
-    
-
-def main():
-    ingest = DataOrchestrator()
-    ingest.get_db()
-
-if __name__ == "__main__":
-    main()

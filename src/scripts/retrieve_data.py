@@ -11,7 +11,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-
 output_dir = "data/raw"
 if not os.path.exists(output_dir):
     os.makedirs(output_dir)
@@ -85,14 +84,6 @@ class FetchFilesFromGitHub:
         self.logger.info("Starting file download process.")
         self._fetch_and_download(current_url=self.api_url)
         self.logger.info("File download process completed")
-
-
-def main():
-    document_fetcher = FetchFilesFromGitHub()
-    document_fetcher.get_documents_from_github()
-
-if __name__ == "__main__":
-    main()
 
 
             
