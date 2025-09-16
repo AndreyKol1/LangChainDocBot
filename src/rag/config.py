@@ -1,5 +1,4 @@
 from rag.generator import initialize_model
-from scripts.ingest_data import DataOrchestrator
 from utils.logger import get_logger
 from langchain.retrievers.document_compressors import LLMChainExtractor
 from langchain.retrievers import ContextualCompressionRetriever
